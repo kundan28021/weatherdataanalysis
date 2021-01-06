@@ -1,0 +1,31 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+
+import pandas as pd
+from datetime import datetime 
+
+import glob
+
+path = '/Users/kundan/Desktop' # use your path
+parquet_output_loc = 'parquet_output'
+all_files = glob.glob(path + "/*.csv")
+for file in all_files :
+    print(file)
+
+
+li = []
+for filename in all_files:
+    df = pd.read_csv(filename, index_col=None, header=0,parse_dates = [2])
+    li.append(df)
+
+finalDf = pd.concat(li, axis=0, ignore_index=True)
+conda install -c conda-forge fastparquet # Install this package to write in Parquet Format
+from fastparquet import write 
+write('outfile.parq', finalDf)  # Save in Parquet format
+finalDf.isnull().sum()
+finalDf = finalDf.drop(['WindGust','Visibility','Pressure','Country'],axis = 1) # Dropping all these columns as many values are not available
+len(finalDf)  # Number of records of both files
+finalDf.isnull().sum() # Check for NaN values after Dropping Columns
+finalDf = finalDf[finalDf['ScreenTemperature']==finalDf['ScreenTemperature'].max()][['ObservationDate','ScreenTemperature','Region']]  # Assumption Maxium temperature of two month
+finalDf
